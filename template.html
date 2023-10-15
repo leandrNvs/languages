@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phrases</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    dl {
+      margin: 4rem 2rem 6rem;
+    }
+
+    dt {
+      font-size: 1.3rem;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ddd;
+      border-bottom: 1px solid black;
+    }
+
+    dt span {
+      display: block;
+      padding: 1rem ;
+      flex: 12;
+      cursor: pointer;
+    }
+
+    dd {
+      padding: 2rem;
+      font-size: 1.2rem;
+      display: none;
+    }
+
+    dd.active {
+      display: block;
+    }
+
+    hr {
+      margin: .5rem 0;
+    }
+
+    button {
+      flex: 1;
+      padding: .5rem 0;
+      margin-right: 1rem;
+    }
+
+    audio {
+      position: fixed;
+      top: .5rem;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .play-all {
+      height: 70px;
+      width: 70px;
+      border-radius: 50%;
+      border: none;
+
+      position: fixed;
+      bottom: .5rem;
+      left: 50%;
+      transform: translateX(-50%);
+
+      background-color: cornflowerblue;
+      font-size: 1rem;
+      font-weight: bold;
+      word-spacing: -3px;
+
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <audio src="" controls>
+  </audio>
+
+  <button type="button" class="play-all">
+    Play all
+  </button>
+  
+  <dl>
+    {{list}}
+  </dl>
+
+  <script>
+    const phrases = Array.from(document.querySelectorAll('dt'));
+    const buttons = document.querySelectorAll('button[data-pos]');
+    const titles = phrases.map(i => i.querySelector('span'));
+    const audios = phrases.map(i => i.dataset.audio);
+    const player = document.querySelector('audio');
+    const playAll = document.querySelector('.play-all');
+
+    let infinite = false;
+    let lastIndex = null;
+    let index = 0;
+
+    playAll.addEventListener('click', function () {
+      infinite = true;
+
+      changeAudio(index);
+      player.play();
+    });
+
+    titles.forEach(title => {
+      title.addEventListener('click', function() {
+        this.parentElement.nextElementSibling.classList.toggle('active');
+      });
+    });
+
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        infinite = false;
+        changeAudio(+this.dataset.pos);
+        player.play();
+      });
+    })
+
+    player.addEventListener('ended', function () {
+      if(infinite) {
+        index++;
+
+        if(index === audios.length) index = 0;
+
+        changeAudio(index);
+        player.play();
+
+      }
+    });
+    
+    function changeAudio(index) {
+      player.src = 'audios/' + audios[index];
+      markElement(index);
+      lastIndex = index;
+    }
+
+    function markElement(index) {
+      if(lastIndex !== null) titles[lastIndex].style.color = 'black';
+      titles[index].style.color = 'purple';
+    }
+  </script>
+</body>
+</html>
