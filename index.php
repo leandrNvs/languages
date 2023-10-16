@@ -43,12 +43,14 @@
 
       output.innerHTML = '';
 
+      const regex = /\b(v|loc|express|expres|vt|vtr|expr|n|vi|prep|sf|lig|interj|aux|int|adv)\b|(⇒|\+)/gi;
+
       const items = [];
 
       trs.forEach(tr => {
         if(tr.id.startsWith('enpt')) {
 
-          const frwrd = tr.querySelector('td.FrWrd').textContent;
+          const frwrd = tr.querySelector('td.FrWrd').textContent.replace(regex, '').trim();
 
           items.push({ phrases: [], frwrd, meanings: [] });
         }
@@ -59,13 +61,15 @@
           items[items.length - 1].phrases.push(phrase);
         }
 
-        const towrd = tr.querySelector('td.ToWrd')?.textContent;
+        const towrd = tr.querySelector('td.ToWrd')?.textContent.replace(regex, '').trim();
 
         if(towrd) {
           items[items.length - 1].meanings.push(towrd);
         }
 
       });
+
+      console.log(items);
 
       await post(items
       .filter(i => i.phrases.length >= 1)
