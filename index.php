@@ -43,7 +43,7 @@
 
       output.innerHTML = '';
 
-      const regex = /\b(v|loc|express|expres|vt|vtr|expr|n|vi|prep|sf|lig|interj|aux|int|adv)\b|(⇒|\+)/gi;
+      const regex = /\b(v|loc|express|adj|vp|insep|sep|expres|phrasal|vt|vtr|sm|expr|n|vi|prep|sf|lig|interj|aux|int|adv)\b|(⇒|\+)/gi;
 
       const items = [];
 
