@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Phrases</title>
 </head>
+
 <body>
-  
+
   <form method="post" id="search-word" autocomplete="off">
     <input type="text" name="word">
     <button type="submit">send</button>
@@ -25,11 +27,11 @@
     const output = document.querySelector('.output');
     const endpoint = 'https://www.wordreference.com/';
 
-    form.addEventListener('submit', async function (e) {
+    form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const word = this.word.value;
-      
+
       const res = await search(`enpt/${word}`);
 
       output.innerHTML = res;
@@ -37,33 +39,36 @@
       const allowedClasses = ['odd', 'even'];
 
       const trs = Array.from(
-        document.querySelectorAll('tr'))
-          .filter(i => allowedClasses.some(a => i.classList.contains(a))
-      );
+          document.querySelectorAll('tr'))
+        .filter(i => allowedClasses.some(a => i.classList.contains(a)));
 
       output.innerHTML = '';
 
-      const regex = /\b(v|loc|express|adj|vp|insep|sep|expres|phrasal|vt|vtr|sm|expr|n|vi|prep|sf|lig|interj|aux|int|adv)\b|(⇒|\+)/gi;
+      const regex = /\b(v|loc|pron|pl|npl|express|adj|vp|insep|sep|expres|phrasal|vt|vtr|sm|expr|n|vi|prep|sf|lig|interj|aux|int|adv)\b|(⇒|\+)/gi;
 
       const items = [];
 
       trs.forEach(tr => {
-        if(tr.id.startsWith('enpt')) {
+        if (tr.id.startsWith('enpt')) {
 
           const frwrd = tr.querySelector('td.FrWrd').textContent.replace(regex, '').trim();
 
-          items.push({ phrases: [], frwrd, meanings: [] });
+          items.push({
+            phrases: [],
+            frwrd,
+            meanings: []
+          });
         }
 
         const phrase = tr.querySelector('td.FrEx')?.textContent;
 
-        if(phrase) {
+        if (phrase) {
           items[items.length - 1].phrases.push(phrase);
         }
 
         const towrd = tr.querySelector('td.ToWrd')?.textContent.replace(regex, '').trim();
 
-        if(towrd) {
+        if (towrd) {
           items[items.length - 1].meanings.push(towrd);
         }
 
@@ -72,13 +77,13 @@
       console.log(items);
 
       await post(items
-      .filter(i => i.phrases.length >= 1)
-      .map(item => {
-        let phrase = item.phrases.join(" ");
-        let meanings = item.meanings.join(" ");
+        .filter(i => i.phrases.length >= 1)
+        .map(item => {
+          let phrase = item.phrases.join(" ");
+          let meanings = item.meanings.join(" ");
 
-        return [item.phrases, item.meanings, item.frwrd].join("\t");
-      }), word);
+          return [item.phrases, item.meanings, item.frwrd].join("\t");
+        }), word);
     });
 
     async function search(uri) {
@@ -96,4 +101,5 @@
     }
   </script>
 </body>
+
 </html>
