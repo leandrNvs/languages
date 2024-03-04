@@ -1,0 +1,11 @@
+services:
+  apache:
+    build:
+      context: ./
+    container_name: php-app
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/html
+    user: '1000'
