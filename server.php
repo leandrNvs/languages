@@ -8,7 +8,8 @@ if($act === 'text') {
     $text = file($_FILES['text']['tmp_name']);
 
     $text = array_map(function($i) {
-        $i = preg_replace('/^\d(.*?\d)?$/', '', $i);
+        $i = strip_tags($i);
+        $i = preg_replace('/^\d(.*?)(\d)?$/', '', $i);
         return trim($i);
     }, $text);
 
