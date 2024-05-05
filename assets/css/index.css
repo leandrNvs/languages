@@ -1,0 +1,169 @@
+* {
+  margin: 0;
+  padding: 0;
+  outline: none;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  background-color: chocolate;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+main.container { 
+  display: flex;
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+  position: relative;
+}
+
+main.container > div {
+  flex: 1;
+  padding: 1rem;
+  border-radius: .6rem;
+  background-color: #fff;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+div.subtitles-container {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+form.subtitles {
+  background-color: #fff;
+  border-radius: .6rem;
+  padding: .5rem 1rem;
+  margin-left: auto;
+  width: fit-content;
+}
+
+form.subtitles label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+form.subtitles input {
+  display: none;
+}
+
+button.menu-button {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+}
+
+aside.menu {
+  background-color: #fff;
+  position: fixed;
+  left: -100%;
+  top: 0;
+  bottom: 0;
+  width: 20%;
+}
+
+form.translate {
+  padding: .6rem;
+  background-color: #fff;
+  width: fit-content;
+  position: absolute;
+  border-radius: .5rem;
+  display: flex;
+  gap: .4rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  display: none;
+  z-index: 2;
+}
+
+form.translate input:first-of-type {
+  width: 150px;
+
+}
+
+form.translate input {
+  height: 30px;
+  padding-left: 10px;
+}
+
+form.translate button {
+  height: 30px;
+  padding: 0 10px;  
+}
+
+div.translate-control {
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+.toggle {
+  width: 60px;
+  height: 25px;
+  position: relative;
+  background-color: white;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.toggle.off::before {
+  left: unset;
+  right: 5px;
+}
+
+.toggle::before {
+  content: '';
+  display: block;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background-color: #ccc;
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+span.word {
+  color: crimson;
+  position: relative;
+  cursor: pointer;
+}
+
+span.word span {
+  background-color: #222;
+  color: #fff;
+  position: absolute;
+  top: -130%;
+  left: 0;
+  padding: 0 .5rem;
+  border-radius: .3rem;
+  display: none;
+  z-index: 1;
+  width: max-content;
+  font-size: 0.975rem;
+}
+
+span.word:hover span {
+  display: block;
+}
+
+span.word:hover {
+  color: dodgerblue;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Languages</title>
+  <link rel="stylesheet" href="assets/css/index.css">
+</head>
+<body>
+
+  <div class="subtitles-container">
+    <!-- TRANSLATE CONTROL -->
+    <div class="translate-control">
+      on
+      <div class="toggle"></div>
+      off
+    </div>
+
+    <!-- SUBTITLES FORM -->
+    <form class="subtitles">
+      <label>
+        <img src="assets/imgs/upload-icon.svg" alt="">
+        upload file
+        <input type="file" name="subtitles">
+      </label>
+    </form>
+  </div>
+
+  <!-- TEXT -->
+  <main class="container">
+    <!-- TRANSLATE FORM -->
+    <form class="translate">
+      <input type="text" name="word" disabled>
+      <input type="text" name="means">
+      <button type="submit">OK</button>
+    </form>
+
+    <div class="text" contenteditable></div>
+    <div class="output"></div>
+  </main>
+
+
+  <script src="assets/js/index.js"></script>
+</body>
+</html>
