@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: sans-serif;
+      outline: none;
+    }
+
+    body {
+      background: coral;
+    }
+
+    header {
+      margin: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    a:hover {
+      color: #000;
+    }
+
+    section.text {
+      background: #fff;
+      padding: 2rem;
+      border-radius: .3rem;
+      margin: 1rem;
+    }
+
+    section.text div {
+      line-height: 1.5;
+      text-align: justify;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    section.text > div span {
+      color: red;
+      cursor: pointer;
+    }
+
+    section.text > div span:hover {
+      color: dodgerblue;
+      cursor: pointer;
+    }
+
+    aside {
+      background: rgba(0, 0, 0, .4);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+    }
+
+    aside > div {
+      background: #fff;
+      width: 40%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    aside form {
+      display: grid;
+      gap: 1rem;
+      margin: 3rem;
+    }
+
+    aside form input,
+    aside form textarea {
+      font-size: 1.2rem;
+      padding: 10px;
+      border-radius: .3rem;
+      border: 1px solid #aaa;
+      resize: none;
+    }
+
+    aside form button {
+      font-size: 1.1rem;
+      padding: .5rem 0;
+      cursor: pointer;
+    }
+
+    div.info {
+      font-size: 1.3rem;
+      line-height: 1.5;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, .7);
+      padding: 1rem 2rem;
+      border-radius: .6rem;
+      position: fixed;
+      right: .5rem;
+      top: .5rem;
+      color: dodgerblue;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/">
+      <img src="/assets/images/home.svg" alt="go to home">
+    </a>
+
+    <a href="/practice/{{group}}/{{item}}">Practice</a>
+    <a href="/download/{{group}}/{{item}}">Download Text</a>
+  </header>
+  
+  <section class="text">
+    <div contenteditable="true"></div>
+  </section>
+
+  <div class="info"></div>
+
+  <aside>
+    <div>
+      <form autocomplete="off">
+        <input type="text" name="word">
+        <textarea name="translate" rows="10"></textarea>
+        <button type="submit">Confirm</button>
+      </form>
+    </div>
+  </aside>
+
+  <script>
+    const div = document.querySelector('section.text div');
+    const aside = document.querySelector('aside');
+    const asideDiv = document.querySelector('aside > div');
+    const divInfo = document.querySelector('div.info');
+
+    const form = document.querySelector('form');
+
+    const data = {{data}}
+
+    window.addEventListener('load', function() {
+      if(typeof data === 'object' && !Array.isArray(data) && data !== null) {
+        div.innerHTML = Object.values(data).join(' ');
+      } else {
+        div.innerHTML = bracketsToTag(data);
+      }
+
+      selectWords();
+    });
+
+    const URL = window.location.href.replace('translate', 'save');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const word = this.word.value;
+      const translate = this.translate.value.replace('\n', '<br>');
+
+      const translated = `<span data-info="${translate}">${word}</span>`;
+
+      this.word.value = null;
+      this.translate.value = null;
+
+      aside.style.display = 'none';
+
+      div.innerHTML = div.innerHTML.replace(word, translated);
+
+      selectWords();
+
+      await fetch(URL, {
+        method: 'POST',
+        body: tagToBrackets(div.innerHTML)
+      });
+
+    });
+
+    div.addEventListener('mouseup', function() {
+      const selection = window.getSelection().toString();
+      
+      if(selection.length > 1) {
+        aside.style.display = 'block';
+
+        form.word.value = selection;
+        form.translate.focus();
+      }
+
+    });
+
+    aside.addEventListener('click', function() {
+      this.style.display = 'none';
+    });
+
+    asideDiv.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    function tagToBrackets(text) {
+      return text
+        .replace('<br>', '{br}')
+        .replace(/\<span data\-info=\"(.*?)\"\>(.*?)\<\/span\>/, "[$1:$2]");
+    }
+
+    function bracketsToTag(text) {
+      return text
+        .replace(/\{br\}/g, '<br>')
+        .replace(/\[(.*?)\:(.*?)\]/, '<span data-info="$1">$2</span>');
+    }
+
+
+    function selectWords() {
+      const words = document.querySelectorAll('section.text div span');
+
+      let isFixed = false;
+      let spanActive = null;
+
+      divInfo.addEventListener('focusout', async function() {
+        this.style.display = 'none';
+
+        spanActive.dataset.info = divInfo.innerHTML;
+        spanActive.removeAttribute('style');
+
+        await fetch(URL, {
+          method: 'POST',
+          body: tagToBrackets(div.innerHTML)
+        });
+      });
+
+      words.forEach((word) => {
+        word.addEventListener('mouseover', function() {
+          if(spanActive !== this && !isFixed) {
+            divInfo.innerHTML = this.dataset.info;
+            divInfo.style.display = 'block';
+            divInfo.removeAttribute('contenteditable');
+            isFixed = false;
+
+            if(spanActive) {
+              spanActive.removeAttribute('style');
+              spanActive = null;
+            }
+          }
+        });
+
+        word.addEventListener('mouseout', function() {
+          if(!isFixed) {
+            divInfo.innerHTML = null;
+            divInfo.style.display = 'none';
+          }
+        });
+
+        word.addEventListener('click', function() {
+          if(isFixed && spanActive == this) {
+            divInfo.removeAttribute('contenteditable');
+            isFixed = false;
+            spanActive.style.color = 'red';
+            spanActive = null;
+          } else {
+
+            if(spanActive) {
+              spanActive.removeAttribute('style');
+            }
+
+            this.style.color = 'green';
+            divInfo.innerHTML = this.dataset.info;
+            divInfo.setAttribute('contenteditable', 'true');
+            isFixed = true;
+            spanActive = this;
+          }
+
+        });
+      });
+    }
+  </script>
+</body>
+</html>

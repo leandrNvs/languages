@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      outline: none;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    body {
+      background: coral;
+    }
+
+    div.form-container {
+      background: rgba(0, 0, 0, .7);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      display: none;
+      place-items: center;
+    }
+
+    div.form-container.active {
+      display: grid;
+    }
+
+    div.form-container form {
+      background: #fff;
+      padding: 2rem;
+      border-radius: .6rem;
+      display: grid;
+      gap: 1rem;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    div.form-container form input[type='text'],
+    div.form-container form textarea {
+      font-size: 1rem;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    div.form-container form button {
+      font-size: 1rem;
+      padding: .5rem 0;
+    }
+
+    textarea {
+      resize: none;
+    }
+
+    svg {
+      width: 2em;
+      height: 2rem;
+    }
+
+    div.buttons {
+      display: flex;
+      gap: 1rem;
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+    }
+
+    div.buttons button {
+      display: grid;
+      place-items: center;
+      background: #fff;
+      border-radius: 50%;
+      height: 50px;
+      width: 50px;
+      border: 0;
+      cursor: pointer;
+      transition: .5s;
+    }
+
+    button.toggle-form.active {
+      transform: rotate(-45deg);
+    }
+
+    div.notes-container {
+      padding: 2rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    div.note {
+      background: #fff;
+      padding: 1.5rem 1rem;
+      border-radius: .3rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+      display: grid;
+      
+    }
+
+    div.note span {
+      position: absolute;
+      top: -2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .5s;
+      font-family: cursive;
+      color: red;
+    }
+    
+    a {
+      text-decoration: none;
+      color: #000;
+      text-transform: capitalize;
+      padding: .5rem 0;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    div.note h3 {
+      margin-bottom: 1rem;
+    }
+
+    div.note:hover span {
+      top: 0rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="notes-container">
+    <div class="note last-added">
+      <h3>Últimos adicionados</h3>
+    </div>
+  </div>
+
+  <div class="form-container">
+    <form action="/" method="POST" autocomplete="off">
+      <input type="text" name="title" placeholder="Save as...">
+      <input type="text" name="youtube" placeholder="Youtube ID">
+      <input type="file" name="">
+      <textarea name="subtitles" rows="15"></textarea>
+
+      <button type="submit">Confirm</button>
+    </form>
+  </div>
+
+  <div class="buttons">
+    <button class="toggle-form">
+      <img src="/assets/images/plus.svg" alt="">
+    </button>
+    <button>
+      <img src="/assets/images/note.svg" alt="">
+    </button>
+  </div>
+
+  <script>
+    const toggleForm = document.querySelector('button.toggle-form');
+    const formContainer = document.querySelector('div.form-container');
+
+    const data = {{data}}
+
+    window.addEventListener('load', function() {
+      const lastAdded = document.querySelector('div.last-added');
+      
+      lastAdded.innerHTML = lastAdded.innerHTML + Object.keys(data['last-added']).map((i) => {
+        return `<a href="/translate/last-added/${i}">${i.replace(/\-/g, ' ')}</a>`;
+      }).join('\n');
+    });
+
+    toggleForm.addEventListener('click', function() {
+      formContainer.classList.toggle('active');
+      this.classList.toggle('active');
+    });
+  </script>
+</body>
+</html>

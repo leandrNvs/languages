@@ -1,0 +1,12 @@
+services:
+  php:
+    build: 
+      context: ./
+    container_name: languages
+    restart: always
+    volumes:
+      - ./:/var/www/html
+      - ./000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+    ports:
+      - 80:80
+    user: 'php'
