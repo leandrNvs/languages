@@ -22,7 +22,8 @@ Routes::get('/', function() {
 });
 
 Routes::get('/translate/{group}/{item}', function($group, $item) {
-    $data = Storage::read()[$group][$item];
+    $data = Storage::read();
+    $data = $data['last-added'][$item] ?? $data['notes'][$group][$item];
 
     $data = $data['translated'] ?? $data['subtitles'];
 
@@ -34,7 +35,8 @@ Routes::get('/translate/{group}/{item}', function($group, $item) {
 });
 
 Routes::get('/practice/{group}/{item}', function($group, $item) {
-    $data = Storage::read()[$group][$item];
+    $data = Storage::read();
+    $data = $data['last-added'][$item] ?? $data['notes'][$group][$item];
 
     $difficult = range(1, 5);
 
@@ -109,6 +111,60 @@ Routes::post('/', function(Request $request) {
     Redirect::to('/');
 });
 
+Routes::post('/note', function() {
+    $note = file_get_contents('php://input');
+
+    $data = Storage::read();
+
+    $data['notes'][$note] = [];
+
+    Storage::store($data);
+});
+
+Routes::patch('/note', function() {
+    $item = json_decode(file_get_contents('php://input'), true);
+    $data = Storage::read();
+
+    $item['item'] = str_replace(' ', '-', strtolower($item['item']));
+    $item['to'] = str_replace(' ', '-', strtolower($item['to']));
+    $item['from'] = str_replace(' ', '-', strtolower($item['from']));
+
+    $container = $item['from'] === 'last-added'? $data['last-added'] : $data['notes'][$item['from']];
+
+    $keys = array_keys($container);
+    $values = array_values($container);
+
+    $index = array_search($item['item'], $keys);
+
+    $key = array_splice($keys, $index, 1);
+    $value = array_splice($values, $index, 1);
+
+    if($item['from'] === 'last-added') {
+        $data['last-added'] = array_combine($keys, $values);
+    } else {
+        $data['notes'][$item['from']] = array_combine($keys, $values);
+    }
+
+    if($item['to'] === 'last-added') {
+        $data['last-added'][end($key)] = end($value);
+    } else {
+        $data['notes'][$item['to']][end($key)] = end($value);
+    }
+
+    Storage::store($data);
+});
+
+Routes::patch('/note/{old}/{new}', function($old, $new) {
+    $data = Storage::read();
+
+    $items = $data['notes'][$old];
+
+    unset($data['notes'][$old]);
+
+    $data['notes'][$new] = $items;
+
+    Storage::store($data);
+});
 
 die(
     Kernel::send(Request::capture())

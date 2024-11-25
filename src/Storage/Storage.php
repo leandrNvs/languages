@@ -10,6 +10,8 @@ final class Storage
     {
         self::$path = $path . 'storage.txt';
 
+        if(!file_exists($path)) mkdir($path);
+
         if(!file_exists(self::$path)) {
             self::initialize();
         }

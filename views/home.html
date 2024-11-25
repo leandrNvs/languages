@@ -91,6 +91,8 @@
     div.notes-container {
       padding: 2rem;
       display: flex;
+      flex-wrap: wrap;
+      align-items: start;
       gap: 1rem;
     }
 
@@ -124,6 +126,7 @@
       color: #000;
       text-transform: capitalize;
       padding: .5rem 0;
+      max-width: 200px;
     }
 
     a:hover {
@@ -162,16 +165,19 @@
     <button class="toggle-form">
       <img src="/assets/images/plus.svg" alt="">
     </button>
-    <button>
+    <button class="add-note">
       <img src="/assets/images/note.svg" alt="">
     </button>
   </div>
 
   <script>
+    const notesContainer = document.querySelector('div.notes-container');
     const toggleForm = document.querySelector('button.toggle-form');
     const formContainer = document.querySelector('div.form-container');
+    const addNote = document.querySelector('button.add-note');
 
-    const data = {{data}}
+    const data = {{data}};
+    const URL = window.location.href;
 
     window.addEventListener('load', function() {
       const lastAdded = document.querySelector('div.last-added');
@@ -179,12 +185,131 @@
       lastAdded.innerHTML = lastAdded.innerHTML + Object.keys(data['last-added']).map((i) => {
         return `<a href="/translate/last-added/${i}">${i.replace(/\-/g, ' ')}</a>`;
       }).join('\n');
+
+      for(const note in data.notes) {
+        const div = document.createElement('div');
+        div.setAttribute('class', 'note');
+
+        const h3 = document.createElement('h3');
+        h3.textContent = note;
+        h3.setAttribute('contenteditable', 'true');
+
+        div.appendChild(h3);
+
+        div.innerHTML = div.innerHTML + Object.keys(data.notes[note]).map((i) => {
+          return `<a href="/translate/${note}/${i}">${i.replace(/\-/g, ' ')}</a>`;
+        }).join('\n');
+
+        notesContainer.appendChild(div);
+      }
+
+      selectNotes();
     });
 
     toggleForm.addEventListener('click', function() {
       formContainer.classList.toggle('active');
       this.classList.toggle('active');
     });
+
+
+    addNote.addEventListener('click', async function() {
+      const div = document.createElement('div');
+      div.setAttribute('class', 'note');
+
+      const count = document.querySelectorAll('div.notes-container div:not(.last-added)').length + 1;
+
+      const h3 = document.createElement('h3');
+      h3.textContent = 'new-note-' + count;
+      div.appendChild(h3);
+
+      notesContainer.appendChild(div);
+
+      await fetch(URL + 'note', {
+        method: 'POST',
+        body: 'new-note-' + count
+      });
+
+      selectNotes();
+    });
+
+    function selectNotes() {
+      const notes = document.querySelectorAll('div.note');
+      const h3 = document.querySelectorAll('div.note h3');
+      const notesItems = document.querySelectorAll('div.note a');
+
+      let dragged = null;
+      let over = null;
+      let data = {item: null, from: null, to: null};
+
+      h3.forEach((i) => {
+        i.addEventListener('focus', function() {
+          this.setAttribute('data-old', this.textContent);
+        });
+
+        i.addEventListener('focusout', async function() {
+          if(this.dataset.old !== this.textContent) {
+            await fetch(URL + `note/${this.dataset.old}/${this.textContent}`, {
+              method: 'PATCH',
+            });
+          }
+        });
+      });
+
+      notes.forEach((note) => {
+        note.addEventListener('dragover', function(e) {
+          e.preventDefault();
+
+          if(!over || over !== this) {
+            over = this;
+
+            this.children[0].removeAttribute('contenteditable');
+
+            data.to = this.children[0].textContent;
+          }
+
+        });
+
+        note.addEventListener('drop', async function(e) {
+          e.preventDefault();
+
+          this.appendChild(dragged);
+
+          if(!this.classList.contains('last-added')) {
+            over.children[0].setAttribute('contenteditable', 'true');
+          }
+
+          if(data.to === 'Últimos adicionados') {
+            data.to = 'last-added';
+          }
+
+          if(data.from === 'Últimos adicionados') {
+            data.from = 'last-added';
+          }
+
+          await fetch(URL + 'note', {
+            method: 'PATCH',
+            body: JSON.stringify(data)
+          })
+        })
+      });
+
+      notesItems.forEach((item) => {
+        item.addEventListener('dragstart', function() {
+          if(!dragged || dragged !== this) {
+            dragged = this;
+
+            data.item = this.textContent;
+            data.from = this.parentElement.children[0].textContent;
+          }
+        });
+
+        item.addEventListener('dragend', function() {
+          if(!over.classList.contains('last-added')) {
+            over.children[0].setAttribute('contenteditable', 'true');
+          }
+        });
+      });
+    }
   </script>
 </body>
 </html>
